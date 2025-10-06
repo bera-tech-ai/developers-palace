@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devs Arena - Global Developer Ecosystem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#8B5CF6',
+                        dark: {
+                            900: '#0F0F23',
+                            800: '#1A1A2E',
+                            700: '#16213E',
+                            600: '#0F3460'
+                        },
+                        accent: '#00D4FF'
+                    },
+                    animation: {
+                        'gradient': 'gradient 8s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        gradient: {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(15, 15, 35, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0F0F23 0%, #1A1A2E 50%, #16213E 100%);
+        }
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #3B82F6, #8B5CF6, #00D4FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: gradient 3s ease infinite;
+        }
+        .code-editor {
+            font-family: 'Fira Code', 'Monaco', 'Cascadia Code', monospace;
+        }
+        .hover-lift {
+            transition: all 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="dark:bg-dark-900 gradient-bg min-h-screen text-white font-sans">
+    <!-- Navigation -->
+    <nav class="glass fixed top-0 w-full z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
+                        <i class="fas fa-code text-white"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-gradient">Devs Arena</span>
+                </div>
+                
+                <div class="hidden lg:flex space-x-8">
+                    <a href="#dashboard" class="nav-link hover:text-accent transition-all duration-300">Dashboard</a>
+                    <a href="#projects" class="nav-link hover:text-accent transition-all duration-300">Projects</a>
+                    <a href="#apis" class="nav-link hover:text-accent transition-all duration-300">APIs Hub</a>
+                    <a href="#school" class="nav-link hover:text-accent transition-all duration-300">Devs School</a>
+                    <a href="#tools" class="nav-link hover:text-accent transition-all duration-300">Tools</a>
+                    <a href="#hackathons" class="nav-link hover:text-accent transition-all duration-300">Hackathons</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="p-3 rounded-xl glass-card hover-lift">
+                        <i class="fas fa-moon text-accent"></i>
+                    </button>
+                    <button id="chatToggle" class="p-3 rounded-xl glass-card hover-lift relative">
+                        <i class="fas fa-comments text-accent"></i>
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></span>
+                    </button>
+                    <button id="loginBtn" class="bg-gradient-to-r from-primary to-secondary hover:from-blue-600 hover:to-purple-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover-lift neon-glow">
+                        Sign In
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-24 container mx-auto px-6">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="mb-16">
+            <div class="text-center mb-12">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6">
+                    <span class="text-gradient">Devs Arena</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
+                    The Ultimate Developer Ecosystem. Code, Collaborate, Learn, and Grow in a Global Community of Developers.
+                </p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="glass-card p-6 rounded-2xl text-center hover-lift">
+                    <div class="text-3xl font-bold text-accent mb-2" id="onlineUsers">1,247</div>
+                    <div class="text-gray-400">Online Developers</div>
+                </div>
+                <div class="glass-card p-6 rounded-2xl text-center hover-lift">
+                    <div class="text-3xl font-bold text-secondary mb-2" id="totalProjects">3,891</div>
+                    <div class="text-gray-400">Projects Shared</div>
+                </div>
+                <div class="glass-card p-6 rounded-2xl text-center hover-lift">
+                    <div class="text-3xl font-bold text-green-400 mb-2" id="availableAPIs">892</div>
+                    <div class="text-gray-400">APIs Available</div>
+                </div>
+                <div class="glass-card p-6 rounded-2xl text-center hover-lift">
+                    <div class="text-3xl font-bold text-yellow-400 mb-2" id="activeChallenges">156</div>
+                    <div class="text-gray-400">Active Challenges</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="glass-card p-6 rounded-2xl text-center hover-lift cursor-pointer" onclick="showSection('chat')">
+                    <div class="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-comments text-2xl text-white"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Community Chat</h3>
+                    <p class="text-gray-400 text-sm">Real-time discussions</p>
+                </div>
+                <div class="glass-card p-6 rounded-2xl text-center hover-lift cursor-pointer" onclick="showSection('ai')">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-robot text-2xl text-white"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">AI Assistant</h3>
+                    <p class="text-gray-400 text-sm">Code help & learning</p>
+                </div>
+                <div class="glass-card p-6 rounded-2xl text-center hover-lift cursor-pointer" onclick="showSection('playground')">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-code text-2xl text-white"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Code Playground</h3>
+                    <p class="text-gray-400 text-sm">Live coding environment</p>
+                </div>
+                <div class="glass-card p-6 rounded-2xl text-center hover-lift cursor-pointer" onclick="showSection('apis')">
+                    <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-plug text-2xl text-white"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">APIs Hub</h3>
+                    <p class="text-gray-400 text-sm">Test & integrate APIs</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Projects -->
+        <section id="projects" class="mb-16 hidden section-content">
+            <h2 class="text-3xl font-bold mb-8">Featured Projects</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="projectsGrid">
+                <!-- Projects will be loaded here -->
+            </div>
+        </section>
+
+        <!-- APIs Hub -->
+        <section id="apis" class="mb-16 hidden section-content">
+            <h2 class="text-3xl font-bold mb-8">Free APIs Hub</h2>
+            <div class="mb-6">
+                <input type="text" id="apiSearch" placeholder="Search APIs..." class="w-full glass-card rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-accent">
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="apisGrid">
+                <!-- APIs will be loaded here -->
+            </div>
+        </section>
+
+        <!-- Devs School -->
+        <section id="school" class="mb-16 hidden section-content">
+            <h2 class="text-3xl font-bold mb-8">Devs School</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="lessonsGrid">
+                <!-- Lessons will be loaded here -->
+            </div>
+        </section>
+
+        <!-- Developer Tools -->
+        <section id="tools" class="mb-16 hidden section-content">
+            <h2 class="text-3xl font-bold mb-8">Developer Tools</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div class="glass-card p-6 rounded-2xl text-center hover-lift cursor-pointer" onclick="openTool('json')">
+                    <i class="fas fa-code text-3xl text-accent mb-4"></i>
+                    <h3 class="font-semibold">JSON Formatter</h3>
+                </div>
+                <div class="glass-card p-6 rounded-2xl text-center hover-lift cursor-pointer" onclick="openTool('base64')">
+                    <i class="fas fa-lock text-3xl text-accent mb-4"></i>
+                    <h3 class="font-semibold">Base64 Converter</h3>
+                </div>
+                <div class="glass-card p-6 rounded-2xl text-center hover-lift cursor-pointer" onclick="openTool('regex')">
+                    <i class="fas fa-search text-3xl text-accent mb-4"></i>
+                    <h3 class="font-semibold">Regex Tester</h3>
+                </div>
+                <div class="glass-card p-6 rounded-2xl text-center hover-lift cursor-pointer" onclick="openTool('color')">
+                    <i class="fas fa-palette text-3xl text-accent mb-4"></i>
+                    <h3 class="font-semibold">Color Picker</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chat Section (Hidden by default) -->
+        <section id="chat" class="mb-16 hidden section-content">
+            <div class="glass-card rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold">Community Chat</h2>
+                    <div class="flex space-x-2">
+                        <select id="roomSelect" class="glass-card rounded-xl px-4 py-2 focus:outline-none">
+                            <option value="general">General</option>
+                            <option value="frontend">Frontend</option>
+                            <option value="backend">Backend</option>
+                            <option value="ai">AI & ML</option>
+                            <option value="help">Help</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Online Users -->
+                    <div class="lg:col-span-1">
+                        <div class="glass rounded-xl p-4 mb-4">
+                            <h3 class="font-semibold mb-3">Online Developers</h3>
+                            <div id="onlineUsersList" class="space-y-2">
+                                <!-- Online users will appear here -->
+                            </div>
+                        </div>
+                        <div class="glass rounded-xl p-4">
+                            <h3 class="font-semibold mb-3">Your Badges</h3>
+                            <div id="userBadges" class="space-y-2">
+                                <!-- User badges will appear here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages -->
+                    <div class="lg:col-span-3">
+                        <div class="glass rounded-xl p-4 h-96 mb-4">
+                            <div class="h-full overflow-y-auto space-y-3" id="chatMessages">
+                                <!-- Messages will appear here -->
+                            </div>
+                        </div>
+                        <div class="flex space-x-3">
+                            <input type="text" id="messageInput" 
+                                   class="flex-1 glass-card rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent"
+                                   placeholder="Type your message...">
+                            <button id="sendMessage" class="bg-gradient-to-r from-primary to-secondary hover:from-blue-600 hover:to-purple-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Assistant Section -->
+        <section id="ai" class="mb-16 hidden section-content">
+            <div class="glass-card rounded-2xl p-6">
+                <h2 class="text-3xl font-bold mb-6">AI Coding Assistant</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-1">
+                        <div class="space-y-3">
+                            <button class="w-full glass-card p-4 rounded-xl text-left hover-lift transition-all" data-mode="explain">
+                                <i class="fas fa-comment-dots text-accent mr-3"></i>
+                                <span>Explain Code</span>
+                            </button>
+                            <button class="w-full glass-card p-4 rounded-xl text-left hover-lift transition-all" data-mode="debug">
+                                <i class="fas fa-bug text-accent mr-3"></i>
+                                <span>Debug Code</span>
+                            </button>
+                            <button class="w-full glass-card p-4 rounded-xl text-left hover-lift transition-all" data-mode="generate">
+                                <i class="fas fa-code text-accent mr-3"></i>
+                                <span>Generate Code</span>
+                            </button>
+                            <button class="w-full glass-card p-4 rounded-xl text-left hover-lift transition-all" data-mode="learn">
+                                <i class="fas fa-graduation-cap text-accent mr-3"></i>
+                                <span>Learn Concept</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2">
+                        <textarea id="aiInput" class="w-full h-40 glass-card rounded-xl p-4 code-editor focus:outline-none focus:ring-2 focus:ring-accent mb-4" 
+                                  placeholder="Enter your code or question here..."></textarea>
+                        <button id="askAI" class="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 px-6 py-4 rounded-xl font-semibold transition-all duration-300 mb-4">
+                            Ask AI Assistant
+                        </button>
+                        <div class="glass-card rounded-xl p-4 h-48 overflow-y-auto">
+                            <div id="aiResponse" class="text-gray-300 code-editor">
+                                AI responses will appear here...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Code Playground -->
+        <section id="playground" class="mb-16 hidden section-content">
+            <div class="glass-card rounded-2xl p-6">
+                <h2 class="text-3xl font-bold mb-6">Code Playground</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
+                    <div>
+                        <div class="flex space-x-2 mb-4">
+                            <button class="px-4 py-2 glass-card rounded-xl active-tab" data-tab="html">HTML</button>
+                            <button class="px-4 py-2 glass-card rounded-xl" data-tab="css">CSS</button>
+                            <button class="px-4 py-2 glass-card rounded-xl" data-tab="js">JavaScript</button>
+                        </div>
+                        <textarea id="htmlCode" class="w-full h-64 glass-card rounded-xl p-4 code-editor focus:outline-none focus:ring-2 focus:ring-accent">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Devs Arena Playground</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Devs Arena! 🚀</h1>
+    <p>Start coding your amazing project...</p>
+</body>
+</html></textarea>
+                    </div>
+                    <div>
+                        <div class="bg-white rounded-xl h-64 overflow-hidden">
+                            <iframe id="preview" class="w-full h-full rounded-xl"></iframe>
+                        </div>
+                    </div>
+                </div>
+                <button id="runCode" class="bg-gradient-to-r from-primary to-secondary hover:from-blue-600 hover:to-purple-700 px-8 py-3 rounded-xl font-semibold transition-all duration-300">
+                    Run Code
+                </button>
+            </div>
+        </section>
+
+        <!-- Admin Dashboard (Hidden, accessible via /admin) -->
+        <section id="admin" class="mb-16 hidden section-content">
+            <div class="glass-card rounded-2xl p-6">
+                <h2 class="text-3xl font-bold mb-6">Admin Dashboard</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="glass p-6 rounded-xl">
+                        <h3 class="font-semibold mb-2">Total Users</h3>
+                        <div class="text-3xl text-accent" id="adminUserCount">0</div>
+                    </div>
+                    <div class="glass p-6 rounded-xl">
+                        <h3 class="font-semibold mb-2">Total Projects</h3>
+                        <div class="text-3xl text-secondary" id="adminProjectCount">0</div>
+                    </div>
+                    <div class="glass p-6 rounded-xl">
+                        <h3 class="font-semibold mb-2">Pending Approvals</h3>
+                        <div class="text-3xl text-yellow-400" id="adminPendingCount">0</div>
+                    </div>
+                </div>
+                <!-- Admin controls would go here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50 p-4">
+        <div class="glass-card rounded-2xl p-8 max-w-md w-full">
+            <h3 class="text-2xl font-bold mb-2 text-center">Join Devs Arena</h3>
+            <p class="text-gray-400 text-center mb-6">Start your developer journey today</p>
+            <form id="authForm" class="space-y-4">
+                <input type="text" id="fullName" placeholder="Full Name" class="w-full glass-card rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent">
+                <input type="email" id="email" placeholder="Email" class="w-full glass-card rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent">
+                <select id="role" class="w-full glass-card rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent">
+                    <option value="">Select Role</option>
+                    <option value="frontend">Frontend Developer</option>
+                    <option value="backend">Backend Developer</option>
+                    <option value="fullstack">Full-Stack Developer</option>
+                    <option value="mobile">Mobile Developer</option>
+                    <option value="ai">AI/ML Engineer</option>
+                    <option value="devops">DevOps Engineer</option>
+                    <option value="designer">Designer</option>
+                    <option value="student">Student</option>
+                    <option value="mentor">Mentor</option>
+                </select>
+                <select id="level" class="w-full glass-card rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent">
+                    <option value="">Select Level</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                    <option value="expert">Expert</option>
+                </select>
+                <input type="text" id="skills" placeholder="Skills (comma separated)" class="w-full glass-card rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent">
+                <textarea id="bio" placeholder="Short Bio" class="w-full glass-card rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent" rows="3"></textarea>
+                <button type="submit" class="w-full bg-gradient-to-r from-primary to-secondary hover:from-blue-600 hover:to-purple-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300">
+                    Create Account
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced JavaScript with all functionalities
+        class DevsArena {
+            constructor() {
+                this.socket = io();
+                this.currentUser = null;
+                this.currentRoom = 'general';
+                this.currentAIMode = 'explain';
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.loadInitialData();
+                this.setupSocketListeners();
+            }
+
+            bindEvents() {
+                // Auth
+                document.getElementById('loginBtn').addEventListener('click', () => this.showAuthModal());
+                document.getElementById('authForm').addEventListener('submit', (e) => this.handleRegistration(e));
+                document.getElementById('authModal').addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) this.hideAuthModal();
+                });
+
+                // Theme
+                document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
+
+                // Chat
+                document.getElementById('chatToggle').addEventListener('click', () => this.showSection('chat'));
+                document.getElementById('sendMessage').addEventListener('click', () => this.sendMessage());
+                document.getElementById('messageInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                });
+                document.getElementById('roomSelect').addEventListener('change', (e) => {
+                    this.currentRoom = e.target.value;
+                    this.joinRoom(this.currentRoom);
+                });
+
+                // AI Assistant
+                document.getElementById('askAI').addEventListener('click', () => this.askAI());
+                document.querySelectorAll('[data-mode]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.currentAIMode = e.currentTarget.dataset.mode;
+                        document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('bg-accent'));
+                        e.currentTarget.classList.add('bg-accent');
+                    });
+                });
+
+                // Code Playground
+                document.getElementById('runCode').addEventListener('click', () => this.runCode());
+                document.querySelectorAll('[data-tab]').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        const tabName = e.currentTarget.dataset.tab;
+                        this.switchCodeTab(tabName);
+                    });
+                });
+
+                // Navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const section = e.currentTarget.getAttribute('href').substring(1);
+                        this.showSection(section);
+                    });
+                });
+            }
+
+            setupSocketListeners() {
+                this.socket.on('chat_message', (data) => this.displayMessage(data));
+                this.socket.on('user_joined', (user) => this.userJoined(user));
+                this.socket.on('user_left', (user) => this.userLeft(user));
+                this.socket.on('online_users', (users) => this.updateOnlineUsers(users));
+                this.socket.on('user_badges', (badges) => this.updateUserBadges(badges));
+            }
+
+            async loadInitialData() {
+                // Load user from localStorage
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) {
+                    this.currentUser = JSON.parse(savedUser);
+                    document.getElementById('loginBtn').textContent = this.currentUser.fullName;
+                    this.socket.emit('user_joined', this.currentUser);
+                }
+
+                // Load featured projects
+                await this.loadProjects();
+                
+                // Load APIs
+                await this.loadAPIs();
+                
+                // Load lessons
+                await this.loadLessons();
+                
+                // Update stats
+                await this.updateStats();
+            }
+
+            async loadProjects() {
+                try {
+                    const response = await fetch('/api/projects');
+                    const projects = await response.json();
+                    const grid = document.getElementById('projectsGrid');
+                    
+                    grid.innerHTML = projects.map(project => `
+                        <div class="glass-card rounded-2xl p-6 hover-lift">
+                            <div class="w-full h-40 bg-gradient-to-r from-primary to-secondary rounded-xl mb-4 flex items-center justify-center">
+                                <i class="fas fa-code text-4xl text-white"></i>
+                            </div>
+                            <h3 class="font-semibold text-lg mb-2">${project.title}</h3>
+                            <p class="text-gray-400 text-sm mb-4">${project.description}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-accent">${project.likes} likes</span>
+                                <span class="text-xs text-gray-500">${new Date(project.createdAt).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Error loading projects:', error);
+                }
+            }
+
+            async loadAPIs() {
+                try {
+                    const response = await fetch('/api/apis');
+                    const apis = await response.json();
+                    const grid = document.getElementById('apisGrid');
+                    
+                    grid.innerHTML = apis.map(api => `
+                        <div class="glass-card rounded-2xl p-6 hover-lift">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold text-lg">${api.name}</h3>
+                                <span class="text-xs bg-green-500 text-white px-2 py-1 rounded">FREE</span>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-4">${api.description}</p>
+                            <div class="flex items-center justify-between">
+                                <code class="text-xs bg-dark-800 px-2 py-1 rounded">${api.method} ${api.endpoint}</code>
+                                <button class="text-accent text-sm font-semibold" onclick="testAPI('${api._id}')">Test</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Error loading APIs:', error);
+                }
+            }
+
+            async loadLessons() {
+                try {
+                    const response = await fetch('/api/lessons');
+                    const lessons = await response.json();
+                    const grid = document.getElementById('lessonsGrid');
+                    
+                    grid.innerHTML = lessons.map(lesson => `
+                        <div class="glass-card rounded-2xl p-6 hover-lift">
+                            <div class="w-12 h-12 bg-gradient-to-r from-primary to-secondary rounded-xl flex items-center justify-center mb-4">
+                                <i class="fas fa-book text-white"></i>
+                            </div>
+                            <h3 class="font-semibold text-lg mb-2">${lesson.title}</h3>
+                            <p class="text-gray-400 text-sm mb-4">${lesson.content.substring(0, 100)}...</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-accent">${lesson.difficulty}</span>
+                                <button class="text-primary text-sm font-semibold">Start</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Error loading lessons:', error);
+                }
+            }
+
+            async updateStats() {
+                try {
+                    const response = await fetch('/api/stats');
+                    const stats = await response.json();
+                    
+                    document.getElementById('onlineUsers').textContent = stats.onlineUsers;
+                    document.getElementById('totalProjects').textContent = stats.totalProjects;
+                    document.getElementById('availableAPIs').textContent = stats.availableAPIs;
+                    document.getElementById('activeChallenges').textContent = stats.activeChallenges;
+                } catch (error) {
+                    console.error('Error loading stats:', error);
+                }
+            }
+
+            showAuthModal() {
+                document.getElementById('authModal').classList.remove('hidden');
+                document.getElementById('authModal').classList.add('flex');
+            }
+
+            hideAuthModal() {
+                document.getElementById('authModal').classList.add('hidden');
+                document.getElementById('authModal').classList.remove('flex');
+            }
+
+            async handleRegistration(e) {
+                e.preventDefault();
+                const formData = {
+                    fullName: document.getElementById('fullName').value,
+                    email: document.getElementById('email').value,
+                    role: document.getElementById('role').value,
+                    level: document.getElementById('level').value,
+                    skills: document.getElementById('skills').value.split(',').map(s => s.trim()),
+                    bio: document.getElementById('bio').value
+                };
+
+                try {
+                    const response = await fetch('/api/auth/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const data = await response.json();
+                    if (response.ok) {
+                        this.currentUser = data.user;
+                        localStorage.setItem('currentUser', JSON.stringify(data.user));
+                        localStorage.setItem('token', data.token);
+                        this.hideAuthModal();
+                        document.getElementById('loginBtn').textContent = data.user.fullName;
+                        this.socket.emit('user_joined', data.user);
+                    } else {
+                        alert(data.error);
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                }
+            }
+
+            toggleTheme() {
+                const isDark = document.documentElement.classList.toggle('dark');
+                const icon = document.querySelector('#themeToggle i');
+                icon.className = isDark ? 'fas fa-sun text-accent' : 'fas fa-moon text-accent';
+            }
+
+            showSection(sectionName) {
+                // Hide all sections
+                document.querySelectorAll('.section-content').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                // Show selected section
+                const section = document.getElementById(sectionName);
+                if (section) {
+                    section.classList.remove('hidden');
+                    
+                    // Special handling for chat section
+                    if (sectionName === 'chat') {
+                        this.joinRoom(this.currentRoom);
+                    }
+                }
+            }
+
+            sendMessage() {
+                const input = document.getElementById('messageInput');
+                const message = input.value.trim();
+                
+                if (message && this.currentUser) {
+                    const messageData = {
+                        user: this.currentUser.fullName,
+                        text: message,
+                        room: this.currentRoom,
+                        timestamp: new Date().toISOString(),
+                        userId: this.currentUser._id
+                    };
+                    
+                    this.socket.emit('chat_message', messageData);
+                    input.value = '';
+                }
+            }
+
+            displayMessage(data) {
+                const messagesContainer = document.getElementById('chatMessages');
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message-entry glass-light p-4 rounded-xl';
+                messageElement.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold text-accent">${data.user}</span>
+                            ${data.userId === this.currentUser?._id ? '<span class="text-xs bg-primary text-white px-2 py-1 rounded">You</span>' : ''}
+                        </div>
+                        <span class="text-xs text-gray-400">${new Date(data.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                    <div class="text-gray-300">${data.text}</div>
+                `;
+                
+                messagesContainer.appendChild(messageElement);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            joinRoom(roomName) {
+                this.socket.emit('join_room', roomName);
+                this.currentRoom = roomName;
+                
+                // Update UI to show current room
+                const messagesContainer = document.getElementById('chatMessages');
+                messagesContainer.innerHTML = `<div class="text-center text-gray-400 py-4">Joined ${roomName} room</div>`;
+            }
+
+            updateOnlineUsers(users) {
+                const container = document.getElementById('onlineUsersList');
+                container.innerHTML = users.map(user => `
+                    <div class="flex items-center space-x-3 p-2 rounded-lg hover:bg-dark-700 transition">
+                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span class="text-sm">${user.fullName}</span>
+                        ${user.isVerified ? '<i class="fas fa-shield-check text-blue-400 text-xs"></i>' : ''}
+                    </div>
+                `).join('');
+            }
+
+            updateUserBadges(badges) {
+                const container = document.getElementById('userBadges');
+                container.innerHTML = badges.map(badge => `
+                    <div class="flex items-center space-x-3 p-2 rounded-lg bg-dark-700">
+                        <i class="fas ${badge.icon} text-${badge.color}-400"></i>
+                        <span class="text-sm">${badge.name}</span>
+                    </div>
+                `).join('');
+            }
+
+            async askAI() {
+                const input = document.getElementById('aiInput');
+                const question = input.value.trim();
+                const responseElement = document.getElementById('aiResponse');
+                
+                if (!question) return;
+
+                responseElement.textContent = 'Thinking...';
+                
+                try {
+                    const response = await fetch('/api/ai/ask', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            question, 
+                            mode: this.currentAIMode 
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    responseElement.textContent = data.answer || 'No response from AI';
+                } catch (error) {
+                    responseElement.textContent = 'Error connecting to AI service';
+                }
+            }
+
+            runCode() {
+                const code = document.getElementById('htmlCode').value;
+                const blob = new Blob([code], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                document.getElementById('preview').src = url;
+            }
+
+            switchCodeTab(tabName) {
+                // Update active tab
+                document.querySelectorAll('[data-tab]').forEach(tab => {
+                    tab.classList.toggle('active-tab', tab.dataset.tab === tabName);
+                    tab.classList.toggle('bg-accent', tab.dataset.tab === tabName);
+                });
+                
+                // Here you would switch the code editor content
+                // For now, we'll just show a placeholder
+                const editor = document.getElementById('htmlCode');
+                if (tabName === 'html') {
+                    editor.placeholder = 'Enter your HTML code...';
+                } else if (tabName === 'css') {
+                    editor.placeholder = 'Enter your CSS code...';
+                } else if (tabName === 'js') {
+                    editor.placeholder = 'Enter your JavaScript code...';
+                }
+            }
+
+            userJoined(user) {
+                const messagesContainer = document.getElementById('chatMessages');
+                const messageElement = document.createElement('div');
+                messageElement.className = 'text-center text-gray-400 text-sm py-2';
+                messageElement.textContent = `${user.fullName} joined the chat`;
+                messagesContainer.appendChild(messageElement);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            userLeft(user) {
+                const messagesContainer = document.getElementById('chatMessages');
+                const messageElement = document.createElement('div');
+                messageElement.className = 'text-center text-gray-400 text-sm py-2';
+                messageElement.textContent = `${user.fullName} left the chat`;
+                messagesContainer.appendChild(messageElement);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+
+        // Global functions
+        function showSection(section) {
+            window.devsArena.showSection(section);
+        }
+
+        function openTool(tool) {
+            alert(`Opening ${tool} tool - This would open a dedicated tool interface`);
+            // Implementation for each tool would go here
+        }
+
+        async function testAPI(apiId) {
+            try {
+                const response = await fetch(`/api/apis/${apiId}/test`);
+                const result = await response.json();
+                alert(`API Test Result: ${JSON.stringify(result, null, 2)}`);
+            } catch (error) {
+                alert('Error testing API');
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            window.devsArena = new DevsArena();
+        });
+    </script>
+</body>
+</html>
